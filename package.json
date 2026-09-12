@@ -1,0 +1,23 @@
+{
+  "name": "rjdlx-deployment-package-latest-2026-09-12-(2)",
+  "version": "1.0.0",
+  "description": "Single-page site (46 views) split into properly arranged files. No build step, no framework — pure HTML + CSS + JS. Upload and it runs.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "serve ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cognio-labs/RJDLx.git"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/cognio-labs/RJDLx/issues"
+  },
+  "homepage": "https://github.com/cognio-labs/RJDLx#readme",
+  "devDependencies": {
+    "serve": "^14.2.6"
+  }
+}
