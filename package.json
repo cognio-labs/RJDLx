@@ -1,5 +1,5 @@
 {
-  "name": "rjdlx-deployment-package-latest-2026-09-12-(2)",
+  "name": "rjdlx",
   "version": "1.0.0",
   "description": "Single-page site (46 views) split into properly arranged files. No build step, no framework — pure HTML + CSS + JS. Upload and it runs.",
   "main": "index.js",
