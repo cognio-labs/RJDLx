@@ -150,7 +150,9 @@
     })();
     $$(".coll-row").forEach(row=>{
       row.addEventListener("mouseenter", ()=>{
-        collFloatImg.src = row.dataset.img;
+        const key = row.dataset.img;
+        const src = (window.__IMG && window.__IMG[key]) || key;
+        if(src) collFloatImg.src = src;
         collFloat.classList.add("show");
       });
       row.addEventListener("mouseleave", ()=> collFloat.classList.remove("show"));
@@ -406,6 +408,23 @@
         sw.classList.add("on");
         if(shown) shown.textContent = sw.getAttribute("data-name") || "";
       });
+    });
+  });
+})();
+
+/* ===== RJDLx bundle part 5 (original order kept) ===== */
+/* SWAP PLACEHOLDER IMAGES — resolve data-im, data-img, data-src with window.__IMG */
+(function(){
+  "use strict";
+  var M = window.__IMG || {};
+  document.querySelectorAll("img[data-im]").forEach(function(i){
+    var k = i.getAttribute("data-im");
+    if(M[k]) i.src = M[k];
+  });
+  ["data-img","data-src"].forEach(function(at){
+    document.querySelectorAll("["+at+"]").forEach(function(el){
+      var v = el.getAttribute(at);
+      if(M[v]) el.setAttribute(at, M[v]);
     });
   });
 })();
