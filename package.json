@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "serve ."
+    "dev": "serve -l 4583 ."
   },
   "repository": {
     "type": "git",
