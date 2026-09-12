@@ -1,0 +1,21 @@
+RJDLx DEPLOYMENT BUILD — VERIFIED LATEST
+
+Built from standalone source:
+  RJDLx-Natural-Recycled-Yarn-LATEST-2026-09-12.html
+Source SHA-256:
+  87454ddb9dd467323890efa9b7292efb63a344950526e6aee020df435fc3861f
+
+Included current site updates:
+  - Dividers & Partitions collection (C·12), 5 supplied images
+  - Metal Shelves replacing Storage (C·11), 5 supplied images
+  - Metal Wardrobes, 5 supplied images
+  - Wall Decor, 5 supplied images
+  - Current backdrop treatments and all previously approved updates
+
+Build inventory:
+  - 46 routed page views
+  - 115 mapped image assets, all local
+  - CSS and JavaScript split into local css/ and js/ files
+  - No external image dependencies
+
+To deploy: upload the contents of this folder to your hosting web root.
