@@ -509,6 +509,13 @@ var __loadViewImages;
     ['pointerup','pointercancel','pointerleave'].forEach(function(ev){track.addEventListener(ev,function(){down=false;});});
   });
   var h=(location.hash||'').match(/^#\/([a-z0-9-]+)(#.+)?$/);
-  if(h&&views[h[1]])show(h[1],h[2]||null);
+  if(h&&views[h[1]]){
+    show(h[1],h[2]||null);
+  } else {
+    var p = (location.pathname||'').replace(/^\/+|\.html$/g, '');
+    if(p && (views[p] || (F2V[p] && views[F2V[p]]))){
+      show(F2V[p]||p, (location.hash||null));
+    }
+  }
   window.__showView=show;
 })();
