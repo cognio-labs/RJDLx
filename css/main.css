@@ -11,7 +11,7 @@
   --brass:#A9854B;
   --brass-soft:#C4A468;
   --cane:#C49A5F;
-  --stone:#8B8478;
+  --stone:#635C52;
   --line:rgba(22,19,16,.14);
   --line-light:rgba(243,238,227,.18);
   --serif:"Fraunces",Georgia,"Times New Roman",serif;
@@ -41,8 +41,8 @@ em{font-style:italic;font-weight:200}
 @media(hover:none){.cursor{display:none}}
 
 /* preloader */
-.preloader{position:fixed;inset:0;background:var(--charcoal);color:var(--ivory);z-index:5000;display:flex;align-items:center;justify-content:center;transition:transform 1s cubic-bezier(.76,0,.24,1)}
-.preloader.done{transform:translateY(-101%)}
+.preloader{position:fixed;inset:0;background:var(--charcoal);color:var(--ivory);z-index:5000;display:flex;align-items:center;justify-content:center;transition:transform .35s cubic-bezier(.76,0,.24,1),opacity .3s ease}
+.preloader.done{transform:translateY(-101%);opacity:0;pointer-events:none}
 .preloader-inner{text-align:center}
 .preloader-logo{font-family:var(--serif);font-size:clamp(48px,8vw,110px);font-weight:300;letter-spacing:.02em}
 .preloader-logo .x{font-style:italic;color:var(--brass-soft)}
@@ -96,9 +96,9 @@ em{font-style:italic;font-weight:200}
 .hero-kicker{font-size:12px;letter-spacing:.55em;margin-bottom:18px;color:var(--brass-soft)}
 .hero-title{font-family:var(--serif);font-weight:200;font-size:clamp(46px,9.5vw,148px);line-height:.98;letter-spacing:-.01em}
 .ht-line{display:block;overflow:hidden}
-.ht-line span{display:block;animation:riseUp 1.4s cubic-bezier(.22,1,.36,1) both}
-.ht-line:nth-child(2) span{animation-delay:.12s}
-.ht-line:nth-child(3) span{animation-delay:.24s}
+.ht-line span{display:block;animation:riseUp .7s cubic-bezier(.22,1,.36,1) both}
+.ht-line:nth-child(2) span{animation-delay:.08s}
+.ht-line:nth-child(3) span{animation-delay:.16s}
 @keyframes riseUp{from{transform:translateY(110%)}to{transform:translateY(0)}}
 .hero-title .italic{font-style:italic;font-weight:200;color:var(--ivory)}
 .hero-sub{margin-top:22px;font-size:clamp(12px,1.4vw,16px);letter-spacing:.14em;opacity:.85;font-weight:300}

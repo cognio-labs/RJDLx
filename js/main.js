@@ -11,17 +11,17 @@
   let prog = 0;
   document.body.style.overflow = "hidden";
   const tick = setInterval(()=>{
-    prog += Math.random()*14 + 4;
+    prog += Math.random()*22 + 16;
     if(prog >= 100){ prog = 100; clearInterval(tick);
       setTimeout(()=>{
         preloader.classList.add("done");
         document.body.style.overflow = "";
         heroIntro();
-      }, 350);
+      }, 60);
     }
     loadCount.textContent = String(Math.floor(prog)).padStart(2,"0");
     loadBar.style.width = prog + "%";
-  }, 120);
+  }, 20);
 
   function heroIntro(){
     // re-trigger hero title animation
@@ -30,15 +30,21 @@
 
   /* ---------- Custom cursor ---------- */
   const cursor = $("#cursor"), cursorLabel = $(".cursor-label");
-  let cx=innerWidth/2, cy=innerHeight/2, tx=cx, ty=cy;
-  addEventListener("mousemove", e=>{ tx=e.clientX; ty=e.clientY; });
+  let cx=innerWidth/2, cy=innerHeight/2, tx=cx, ty=cy, cReq=false;
   const finePointer = matchMedia("(hover:hover) and (pointer:fine)").matches;
+  function updateCursor(){
+    cx += (tx-cx)*0.2; cy += (ty-cy)*0.2;
+    cursor.style.transform = `translate3d(${cx}px, ${cy}px, 0) translate(-50%, -50%)`;
+    if(Math.abs(tx-cx) > 0.2 || Math.abs(ty-cy) > 0.2){
+      requestAnimationFrame(updateCursor);
+    } else { cReq = false; }
+  }
   if(finePointer){
-    (function loopCursor(){
-      cx += (tx-cx)*0.16; cy += (ty-cy)*0.16;
-      cursor.style.left = cx+"px"; cursor.style.top = cy+"px";
-      requestAnimationFrame(loopCursor);
-    })();
+    cursor.style.top = "0px"; cursor.style.left = "0px";
+    addEventListener("mousemove", e=>{
+      tx=e.clientX; ty=e.clientY;
+      if(!cReq){ cReq = true; requestAnimationFrame(updateCursor); }
+    }, {passive:true});
   } else { cursor.style.display = "none"; }
   function bindCursor(){
     if(!finePointer) return;
@@ -109,6 +115,7 @@
   /* ---------- Parallax (foreground cards + full-bleed bg) ---------- */
   const pEls = $$(".parallax");
   const bgEls = $$(".parallax-bg");
+  let pTicking = false;
   function parallax(){
     const vh = innerHeight;
     pEls.forEach(el=>{
@@ -125,9 +132,11 @@
       const c = (r.top + r.height/2 - vh/2) / (vh + r.height);
       img.style.translate = `0 ${c * -90}px`;
     });
-    requestAnimationFrame(parallax);
+    pTicking = false;
   }
-  requestAnimationFrame(parallax);
+  addEventListener("scroll", ()=>{
+    if(!pTicking){ pTicking = true; requestAnimationFrame(parallax); }
+  }, {passive:true});
 
   /* ---------- Process: drag to scroll ---------- */
   const track = $("#processTrack");
@@ -141,21 +150,32 @@
   /* ---------- Collection floating preview ---------- */
   const collList = $("#collList"), collFloat = $("#collFloat"), collFloatImg = $("#collFloatImg");
   if(collList && collFloat){
-    let fx=0, fy=0, ftx=0, fty=0;
-    addEventListener("mousemove", e=>{ ftx=e.clientX+28; fty=e.clientY-160; });
-    (function loopFloat(){
-      fx += (ftx-fx)*0.12; fy += (fty-fy)*0.12;
-      collFloat.style.left = fx+"px"; collFloat.style.top = fy+"px";
-      requestAnimationFrame(loopFloat);
-    })();
+    let fx=0, fy=0, ftx=0, fty=0, fActive=false, fReq=false;
+    function loopFloat(){
+      fx += (ftx-fx)*0.18; fy += (fty-fy)*0.18;
+      collFloat.style.transform = `translate3d(${fx}px, ${fy}px, 0)`;
+      if(fActive || Math.abs(ftx-fx) > 0.5 || Math.abs(fty-fy) > 0.5){
+        requestAnimationFrame(loopFloat);
+      } else { fReq = false; }
+    }
+    collFloat.style.top = "0px"; collFloat.style.left = "0px";
+    addEventListener("mousemove", e=>{
+      ftx=e.clientX+28; fty=e.clientY-160;
+      if(fActive && !fReq){ fReq = true; requestAnimationFrame(loopFloat); }
+    }, {passive:true});
     $$(".coll-row").forEach(row=>{
       row.addEventListener("mouseenter", ()=>{
         const key = row.dataset.img;
         const src = (window.__IMG && window.__IMG[key]) || key;
         if(src) collFloatImg.src = src;
         collFloat.classList.add("show");
+        fActive = true;
+        if(!fReq){ fReq = true; requestAnimationFrame(loopFloat); }
       });
-      row.addEventListener("mouseleave", ()=> collFloat.classList.remove("show"));
+      row.addEventListener("mouseleave", ()=>{
+        collFloat.classList.remove("show");
+        fActive = false;
+      });
     });
   }
 
@@ -414,17 +434,42 @@
 
 /* ===== RJDLx bundle part 5 (original order kept) ===== */
 /* SWAP PLACEHOLDER IMAGES — resolve data-im, data-img, data-src with window.__IMG */
+var __loadViewImages;
 (function(){
   "use strict";
   var M = window.__IMG || {};
-  document.querySelectorAll("img[data-im]").forEach(function(i){
-    var k = i.getAttribute("data-im");
-    if(M[k]) i.src = M[k];
-  });
-  ["data-img","data-src"].forEach(function(at){
-    document.querySelectorAll("["+at+"]").forEach(function(el){
-      var v = el.getAttribute(at);
-      if(M[v]) el.setAttribute(at, M[v]);
+  function loadScope(scope){
+    if(!scope) return;
+    scope.querySelectorAll("img[data-im]").forEach(function(i){
+      var k = i.getAttribute("data-im");
+      if(M[k] && i.getAttribute("src") !== M[k]){
+        if(!i.hasAttribute("fetchpriority")){
+          if(!i.hasAttribute("loading")) i.setAttribute("loading", "lazy");
+          if(!i.hasAttribute("decoding")) i.setAttribute("decoding", "async");
+        }
+        i.src = M[k];
+      }
+    });
+    ["data-img","data-src"].forEach(function(at){
+      scope.querySelectorAll("["+at+"]").forEach(function(el){
+        var v = el.getAttribute(at);
+        if(M[v]) el.setAttribute(at, M[v]);
+      });
+    });
+  }
+  __loadViewImages = loadScope;
+
+  // 1. Load active view immediately (Home)
+  var active = document.querySelector('.page-view:not([hidden])') || document.querySelector('[data-view="home"]');
+  loadScope(active);
+  // Also load nav & footer elements
+  document.querySelectorAll("#nav, #footer, #mobileMenu, #enqOverlay, #panel-collections, #panel-studio").forEach(loadScope);
+
+  // 2. Preload remaining hidden views only during idle time after load
+  var onIdle = window.requestIdleCallback || function(cb){ setTimeout(cb, 2500); };
+  onIdle(function(){
+    document.querySelectorAll(".page-view[hidden]").forEach(function(v){
+      loadScope(v);
     });
   });
 })();
@@ -441,6 +486,7 @@
     Object.keys(views).forEach(function(k){views[k].hidden=(k!==name);});
     document.body.dataset.view=name;
     document.title=TITLES[name]||document.title;
+    if(__loadViewImages && views[name]) __loadViewImages(views[name]);
     try{history.replaceState(null,'',hash?'#/'+name+hash:'#/'+name);}catch(e){}
     document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape'}));
     if(hash){requestAnimationFrame(function(){requestAnimationFrame(function(){
