@@ -91,13 +91,23 @@ em{font-style:italic;font-weight:200}
 .hero-center{text-align:center;transition:opacity .6s,transform .6s}
 .hero-center.fade{opacity:0;transform:translateY(-30px)}
 .hero-kicker{font-size:12px;letter-spacing:.55em;margin-bottom:18px;color:var(--brass-soft)}
-.hero-title{font-family:var(--serif);font-weight:200;font-size:clamp(46px,9.5vw,148px);line-height:.98;letter-spacing:-.01em}
+.hero-title{font-family:var(--serif);font-weight:800;font-size:clamp(56px,10.5vw,156px);line-height:.94;letter-spacing:-.015em;color:#f7f2e8;text-align:center}
+.fold-text{perspective:1000px;transform-style:preserve-3d;display:flex;flex-direction:column;align-items:center}
+.fold-line{display:inline-flex;justify-content:center;align-items:center;transform-style:preserve-3d;white-space:nowrap;flex-wrap:nowrap;line-height:.94}
+.fold-line.italic{font-style:italic;font-weight:300}
+.fold-char{display:inline-block;transform-origin:top center;transform-style:preserve-3d;backface-visibility:hidden;will-change:transform,opacity,filter;animation:foldDown 0.65s cubic-bezier(0.215,0.61,0.355,1) both;animation-delay:calc(var(--char-i, 0)*0.045s + 0.12s)}
+.fold-space{display:inline-block;width:0.32em}
+@keyframes foldDown{
+  0%{opacity:0;transform:rotateX(-90deg) translateZ(0);filter:brightness(0.45)}
+  60%{filter:brightness(1.15)}
+  100%{opacity:1;transform:rotateX(0deg) translateZ(0);filter:brightness(1)}
+}
 .ht-line{display:block;overflow:hidden}
 .ht-line span{display:block;animation:riseUp .7s cubic-bezier(.22,1,.36,1) both}
 .ht-line:nth-child(2) span{animation-delay:.08s}
 .ht-line:nth-child(3) span{animation-delay:.16s}
 @keyframes riseUp{from{transform:translateY(110%)}to{transform:translateY(0)}}
-.hero-title .italic{font-style:italic;font-weight:200;color:var(--ivory)}
+.hero-title .italic{font-style:italic;color:#f7f2e8}
 .hero-sub{margin-top:22px;font-size:clamp(12px,1.4vw,16px);letter-spacing:.14em;opacity:.85;font-weight:300}
 .hero-bottom{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap}
 .hero-stages{display:flex;align-items:center;gap:12px;font-size:11px;letter-spacing:.3em}
@@ -771,6 +781,8 @@ a.prod-row:hover .pd::after{opacity:1}
 .c-row{display:grid;grid-template-columns:1.08fr .92fr;gap:clamp(24px,4vw,64px);align-items:center}
 .c-row:nth-child(even) .c-media{order:2}
 .c-media figure{min-height:62vh}
+[data-view="collection-bar"] .c-media figure{height:62vh;min-height:0}
+[data-view="collection-bar"] .c-media figure img{display:block;width:100%;height:100%;object-fit:cover;object-position:center center}
 .c-idx{font-family:var(--serif);font-style:italic;color:var(--brass);font-size:19px}
 .c-code{display:block;margin-top:14px;font-size:11px;letter-spacing:.4em;color:var(--brass)}
 .c-row h3{font-family:var(--serif);font-weight:300;font-size:clamp(34px,4.4vw,58px);line-height:1.05;margin:14px 0 0}
@@ -1057,7 +1069,10 @@ a,button{-webkit-tap-highlight-color:transparent}
 .npanel.mega{padding-bottom:26px;scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.28) transparent}
 .mega-eyebrow{margin-bottom:18px}
 .mega-list{grid-template-columns:repeat(4,minmax(0,1fr));column-gap:36px}
-.mega-list a{padding:11px 2px 12px}
+.mega-list a{padding:11px 2px 14px}
+.mega-thumb{width:100%;height:104px;overflow:hidden;border-radius:2px;margin-bottom:8px;background:rgba(22,19,16,.05);border:1px solid var(--line)}
+.mega-thumb img{width:100%;height:100%;object-fit:cover;transition:transform .5s cubic-bezier(.22,1,.36,1)}
+.mega-list a:hover .mega-thumb img{transform:scale(1.06)}
 .mega-list a i{margin-top:3px}
 .mega-all{margin-top:20px;padding-top:16px}
 @media(max-width:1360px){.mega-list{grid-template-columns:repeat(3,minmax(0,1fr))}}
@@ -1067,3 +1082,11 @@ a,button{-webkit-tap-highlight-color:transparent}
 .mobile-menu::before,.mobile-menu::after{content:"";margin-top:auto;margin-bottom:auto}
 .mobile-menu .mm-label{margin:14px 0 2px}
 .mobile-menu a{font-size:clamp(22px,6vw,32px);padding:4px 10px;min-height:0;line-height:1.2}
+
+/* Collection Tables Hero Image — Proper view without aggressive zoom/crop */
+[data-view="collection-tables"] .page-hero-img{background:#141210;height:clamp(520px,80vh,860px);min-height:440px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+[data-view="collection-tables"] .page-hero-img img{width:100% !important;height:100% !important;object-fit:contain !important;object-position:center center !important;transform:none !important;scale:1 !important;transition:opacity 1.2s cubic-bezier(.22,1,.36,1)}
+[data-view="collection-tables"] .page-hero-img:hover img{transform:none !important;scale:1 !important}
+@media(max-width:900px){[data-view="collection-bar"] .c-media figure{height:50vh;min-height:0}}
+
+

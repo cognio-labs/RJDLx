@@ -25,7 +25,7 @@
 
   function heroIntro(){
     // re-trigger hero title animation
-    $$(".ht-line span").forEach(el=>{ el.style.animation="none"; void el.offsetWidth; el.style.animation=""; });
+    $$(".fold-char, .ht-line span").forEach(el=>{ el.style.animation="none"; void el.offsetWidth; el.style.animation=""; });
   }
 
   /* ---------- Custom cursor ---------- */
@@ -91,7 +91,7 @@
     // subtle parallax zoom on active layer
     layers.forEach((l,i)=>{
       const img = l.querySelector("img");
-      if(i===idx){
+      if(i===idx && img){
         const frac = exact - idx; // -0.5..0.5
         img.style.transform = `scale(${1 + Math.abs(frac)*0.12})`;
       }
@@ -228,19 +228,67 @@
         return;
       }
       const data = new FormData(form);
-      const lines = [];
-      const label = n => (form.querySelector(`[name="${n}"]`)||{}).dataset?.label || n;
-      for(const [k,v] of data.entries()){
-        if(v && String(v).trim()) lines.push(`${label(k)}: ${String(v).trim()}`);
+      const name = (form.querySelector('[name="name"]') || {}).value || "";
+      const email = (form.querySelector('[name="email"]') || {}).value || "";
+      const company = (form.querySelector('[name="company"]') || {}).value || "";
+      const country = (form.querySelector('[name="country"]') || {}).value || "";
+      const projectType = (form.querySelector('input[name="type"]:checked') || {}).value || "Custom Product";
+      const budget = (form.querySelector('[name="budget"]') || {}).value || "";
+      const timeline = (form.querySelector('[name="timeline"]') || {}).value || "";
+      const message = (form.querySelector('[name="message"]') || {}).value || "";
+
+      const submitBtn = form.querySelector('button[type="submit"]');
+      const originalText = submitBtn ? submitBtn.textContent : "SEND ENQUIRY →";
+      if(submitBtn){
+        submitBtn.disabled = true;
+        submitBtn.textContent = "SENDING...";
       }
-      const subject = encodeURIComponent(form.dataset.subject || "New enquiry — RJDLx website");
-      const body = encodeURIComponent(lines.join("\n"));
-      const to = form.dataset.to || "hello@rjdlx.com";
-      window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
-      const shell = form.closest(".form-shell");
-      form.style.display = "none";
-      const ok = $(".form-success", shell);
-      if(ok) ok.classList.add("show");
+
+      fetch('/api/enquiry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim(),
+          company: company.trim(),
+          country: country.trim(),
+          projectType: projectType,
+          budget: budget,
+          timeline: timeline,
+          message: message.trim()
+        })
+      })
+      .then(res => res.json())
+      .then(result => {
+        if(submitBtn){
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalText;
+        }
+        const shell = form.closest(".form-shell");
+        form.style.display = "none";
+        const ok = $(".form-success", shell);
+        if(ok) ok.classList.add("show");
+      })
+      .catch(err => {
+        console.warn("Could not reach /api/enquiry, falling back to mailto:", err);
+        const lines = [];
+        const label = n => (form.querySelector(`[name="${n}"]`)||{}).dataset?.label || n;
+        for(const [k,v] of data.entries()){
+          if(v && String(v).trim()) lines.push(`${label(k)}: ${String(v).trim()}`);
+        }
+        const subject = encodeURIComponent(form.dataset.subject || "New enquiry — RJDLx website");
+        const body = encodeURIComponent(lines.join("\n"));
+        const to = form.dataset.to || "hello@rjdlx.com";
+        window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
+        if(submitBtn){
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalText;
+        }
+        const shell = form.closest(".form-shell");
+        form.style.display = "none";
+        const ok = $(".form-success", shell);
+        if(ok) ok.classList.add("show");
+      });
     });
   });
 
@@ -328,21 +376,57 @@
   overlay.addEventListener("click", e=>{ if(e.target===overlay) closeEnq(); });
   enqForm.addEventListener("submit", e=>{
     e.preventDefault();
-    const name=$("#enqName"), email=$("#enqEmail"), msg=$("#enqMsg");
+    const name=$("#enqName"), email=$("#enqEmail"), msg=$("#enqMsg"), co=$("#enqCo");
     let bad = [name,email,msg].filter(f=>!f.value.trim());
     if(email.value && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.value)) bad.push(email);
     if(bad.length){ bad.forEach(f=>f.style.borderColor="#a33"); bad[0].focus();
       setTimeout(()=>bad.forEach(f=>f.style.borderColor=""),2200); return; }
     const types = $$(".enq-checks input:checked", enqForm).map(b=>b.value);
-    const lines = [
-      "Interested in: " + (types.join(", ") || "—"),
-      "Name: " + name.value.trim(),
-      "Company: " + ($("#enqCo").value.trim() || "—"),
-      "Email: " + email.value.trim(),
-      "", msg.value.trim()
-    ];
-    window.location.href = "mailto:hello@rjdlx.com?subject=" + encodeURIComponent("Enquiry — RJDLx") + "&body=" + encodeURIComponent(lines.join("\n"));
-    enqForm.style.display = "none"; enqSuccess.classList.add("show");
+
+    const submitBtn = enqForm.querySelector('button[type="submit"]');
+    const originalText = submitBtn ? submitBtn.textContent : "SEND ENQUIRY →";
+    if(submitBtn){
+      submitBtn.disabled = true;
+      submitBtn.textContent = "SENDING...";
+    }
+
+    fetch('/api/enquiry', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: name.value.trim(),
+        email: email.value.trim(),
+        company: co ? co.value.trim() : '',
+        projectType: types.join(', ') || 'Product enquiry',
+        message: msg.value.trim()
+      })
+    })
+    .then(res => res.json())
+    .then(result => {
+      if(submitBtn){
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+      }
+      enqForm.style.display = "none";
+      enqSuccess.classList.add("show");
+    })
+    .catch(err => {
+      console.warn("Could not reach /api/enquiry, falling back to mailto:", err);
+      const lines = [
+        "Interested in: " + (types.join(", ") || "—"),
+        "Name: " + name.value.trim(),
+        "Company: " + (co ? co.value.trim() : "—"),
+        "Email: " + email.value.trim(),
+        "", msg.value.trim()
+      ];
+      window.location.href = "mailto:hello@rjdlx.com?subject=" + encodeURIComponent("Enquiry — RJDLx") + "&body=" + encodeURIComponent(lines.join("\n"));
+      if(submitBtn){
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+      }
+      enqForm.style.display = "none";
+      enqSuccess.classList.add("show");
+    });
   });
 
   /* ---------- persistent project pill ---------- */

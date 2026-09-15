@@ -2,10 +2,12 @@
   "name": "rjdlx",
   "version": "1.0.0",
   "description": "Single-page site (46 views) split into properly arranged files. No build step, no framework — pure HTML + CSS + JS. Upload and it runs.",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "serve -l 4583 ."
+    "dev": "node server.js",
+    "start": "node server.js",
+    "serve": "serve -l 4583 .",
+    "test:email": "node test-email.js"
   },
   "repository": {
     "type": "git",
@@ -19,5 +21,12 @@
   "homepage": "https://github.com/cognio-labs/RJDLx#readme",
   "devDependencies": {
     "serve": "^14.2.6"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.7.0",
+    "nodemailer": "^10.0.10"
   }
 }
