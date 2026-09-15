@@ -1011,20 +1011,20 @@ a,button{-webkit-tap-highlight-color:transparent}
 }
 [data-view="home"] img[data-im="h20"]{object-position:50% 45%}
 
-/* ===== RJDLx styles part 5 (original order kept) ===== */
-/* ============ RJDLx PHOTO MEGA-MENU + 11-ITEM INDEX (v7) ============ */
-/* menu panel: always fully reachable, scrolls on short screens */
-.npanel.mega{max-height:100vh;max-height:100svh;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding-top:104px}
-.npanel.mega .mega-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;max-width:1360px}
-.mega-card{position:relative;display:block;aspect-ratio:4/5;overflow:hidden;background:#d9d0bd}
-.mega-card img{width:100%;height:100%;object-fit:cover;transition:transform .9s cubic-bezier(.22,1,.36,1)}
-.mega-card:hover img{transform:scale(1.06)}
-.mega-card span{position:absolute;left:0;right:0;bottom:0;padding:11px 10px;background:linear-gradient(transparent,rgba(10,8,6,.82));color:#fff;font-family:var(--sans);font-size:9px;letter-spacing:.2em;text-transform:uppercase;text-align:center;line-height:1.3}
-.mega-card::after{content:"";position:absolute;inset:0;border:1px solid rgba(255,255,255,.16);opacity:0;transition:opacity .4s}
-.mega-card:hover::after{opacity:1}
-@media(max-width:1400px){.npanel.mega .mega-grid{grid-template-columns:repeat(5,minmax(0,1fr))}}
-@media(max-width:1150px){.npanel.mega .mega-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
-@media(max-width:960px){.npanel.mega .mega-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+/* v8: text-only collections menu */
+.npanel.mega{padding:104px 4vw 40px;max-height:100vh;max-height:100svh;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.mega-eyebrow{display:block;font-size:10.5px;letter-spacing:.3em;color:#8b8172;margin:0 auto 26px;max-width:1380px;text-transform:uppercase}
+.mega-list{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));column-gap:36px;max-width:1380px;margin:0 auto}
+.mega-list a{display:block;padding:11px 2px 14px;border-bottom:1px solid var(--line);text-decoration:none;transition:padding-left .45s cubic-bezier(.22,1,.36,1)}
+.mega-list a span{display:block;font-size:9.5px;letter-spacing:.24em;color:#8b8172;margin-bottom:6px}
+.mega-list a b{display:block;font-size:clamp(14px,1.05vw,18px);font-weight:600;letter-spacing:.06em;text-transform:uppercase;line-height:1.3;color:inherit}
+.mega-list a i{display:block;font-style:normal;font-size:11px;letter-spacing:.05em;color:#8b8172;margin-top:3px}
+.mega-list a:hover{padding-left:12px}
+.mega-list a:hover b{color:#9a7633}
+.mega-all{margin-top:20px;padding-top:16px}
+@media(max-width:1360px){.mega-list{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:1000px){.mega-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.mega-list{grid-template-columns:1fr}}
 /* homepage focus index: two columns so 11 rows stay elegant */
 .coll-list.idx{display:grid;grid-template-columns:1fr 1fr;column-gap:clamp(20px,4vw,64px)}
 .coll-list.idx .coll-row{padding:clamp(18px,2.2vw,30px) 8px}
