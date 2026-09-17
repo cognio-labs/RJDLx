@@ -25,8 +25,23 @@
 
   function heroIntro(){
     // re-trigger hero title animation
+    const heroTitle = $(".hero-title");
+    if (heroTitle) heroTitle.classList.remove("is-shining");
     $$(".fold-char, .ht-line span").forEach(el=>{ el.style.animation="none"; void el.offsetWidth; el.style.animation=""; });
+    if (heroTitle) {
+      setTimeout(() => {
+        heroTitle.classList.add("is-shining");
+      }, 1600);
+    }
   }
+
+  // Ensure shiny sweep activates after initial load
+  setTimeout(() => {
+    const ht = $(".hero-title");
+    if (ht && !ht.classList.contains("is-shining")) {
+      ht.classList.add("is-shining");
+    }
+  }, 2400);
 
   /* ---------- Custom cursor ---------- */
   const cursor = $("#cursor"), cursorLabel = $(".cursor-label");
