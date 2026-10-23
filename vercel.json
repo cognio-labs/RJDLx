@@ -1,6 +1,15 @@
 {
   "version": 2,
+  "builds": [
+    { "src": "package.json", "use": "@vercel/static-build", "config": { "distDir": "dist" } },
+    { "src": "api/enquiry.js", "use": "@vercel/node" }
+  ],
   "cleanUrls": true,
+  "redirects": [
+    { "source": "/index", "destination": "/", "permanent": true },
+    { "source": "/collection-storage", "destination": "/collection-metal-shelves", "permanent": true },
+    { "source": "/collection-woven-metal", "destination": "/collection-natural-yarn", "permanent": true }
+  ],
   "headers": [
     {
       "source": "/images/(.*)",
@@ -32,12 +41,8 @@
   ],
   "rewrites": [
     {
-      "source": "/((?!css/|js/|images/|.*\\..*).*)",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/(.*)\\.html",
-      "destination": "/index.html"
+      "source": "/api/enquiry",
+      "destination": "/api/enquiry.js"
     }
   ]
 }

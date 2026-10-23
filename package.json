@@ -4,9 +4,14 @@
   "description": "Single-page site (46 views) split into properly arranged files. No build step, no framework — pure HTML + CSS + JS. Upload and it runs.",
   "main": "server.js",
   "scripts": {
+    "build": "node scripts/build-site.js",
+    "test:indexing": "node --test tests/indexing.test.js",
+    "indexnow": "node scripts/submit-indexnow.js",
+    "predev": "npm run build",
+    "prestart": "npm run build",
     "dev": "node server.js",
     "start": "node server.js",
-    "serve": "serve -l 4583 .",
+    "serve": "serve -l 4583 dist",
     "test:email": "node test-email.js"
   },
   "repository": {
@@ -20,7 +25,9 @@
   },
   "homepage": "https://github.com/cognio-labs/RJDLx#readme",
   "devDependencies": {
-    "serve": "^14.2.6"
+    "cheerio": "^1.2.0",
+    "serve": "^14.2.6",
+    "sharp": "^0.35.5"
   },
   "dependencies": {
     "cors": "^2.8.6",

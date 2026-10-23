@@ -1,0 +1,7 @@
+.env
+.env.*
+!.env.example
+.cache/
+dist/
+artifacts/
+tests/

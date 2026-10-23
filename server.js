@@ -9,6 +9,8 @@ const express = require('express');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const { sendEnquiryEmail } = require('./lib/mailer');
+const siteManifest = require('./dist/site-manifest.json');
+const publicDirectory = path.join(__dirname, 'dist');
 
 const app = express();
 const PORT = process.env.PORT || 4583;
@@ -165,8 +167,19 @@ app.post('/api/enquiry', enquiryLimiter, async (req, res) => {
   }
 });
 
-// 4. Static Asset Delivery with Cache Control Headers
-app.use(express.static(path.join(__dirname, '.'), {
+// 4. Serve only built public assets, never source files or environment files.
+app.get('{*splat}', (req, res, next) => {
+  const plainPath = req.path.replace(/\.html$/, '').replace(/\/$/, '') || '/';
+  const destination = siteManifest.aliases[plainPath] || plainPath;
+  const page = siteManifest.pages.find(page => page.path === destination);
+  if (!page) return next();
+  if (req.path !== destination) {
+    const query = req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : '';
+    return res.redirect(308, destination + query);
+  }
+  return res.sendFile(path.join(publicDirectory, destination === '/' ? 'index.html' : destination.slice(1) + '.html'));
+});
+app.use(express.static(publicDirectory, {
   etag: false,
   setHeaders: (res, filePath) => {
     // For local development, disable aggressive caching
@@ -174,20 +187,9 @@ app.use(express.static(path.join(__dirname, '.'), {
   }
 }));
 
-// Fallback to index.html for SPA view routes (with static asset guard)
-app.get('{*splat}', (req, res) => {
-  if (/\.(css|js|png|jpg|jpeg|gif|svg|webp|ico|woff|woff2)$/i.test(req.path)) {
-    const filename = path.basename(req.path);
-    const cssPath = path.join(__dirname, 'css', filename);
-    const jsPath = path.join(__dirname, 'js', filename);
-    const imgPath = path.join(__dirname, 'images', filename);
-    const fs = require('fs');
-    if (fs.existsSync(cssPath)) return res.sendFile(cssPath);
-    if (fs.existsSync(jsPath)) return res.sendFile(jsPath);
-    if (fs.existsSync(imgPath)) return res.sendFile(imgPath);
-    return res.status(404).end();
-  }
-  res.sendFile(path.join(__dirname, 'index.html'));
+// Unknown URLs must be real 404s rather than duplicate homepage responses.
+app.use((req, res) => {
+  res.status(404).sendFile(path.join(publicDirectory, '404.html'));
 });
 
 // Start Server

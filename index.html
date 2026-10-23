@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="msvalidate.01" content="DECD6D19B79D8132DE9B46F168DA08B3" />
 <base href="/">
 <link rel="icon" type="image/png" href="/images/favicon.png">
 <title>RJDLx — India, Designed for the World</title>
@@ -14,10 +15,29 @@
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,200;0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,200;1,9..144,300;1,9..144,400&family=Archivo:wght@700;800;900&family=Inter:wght@300;400;500;600&display=swap"></noscript>
 <link rel="stylesheet" href="/css/main.css?v=20260917_shiny">
 
-
+<!-- Google Analytics 4: consent is required before page views are sent. -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-J4MKWGPQJL"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  window.gtag = window.gtag || gtag;
+  (function () {
+    var consent = null;
+    try { consent = window.localStorage.getItem('rjdlx_analytics_consent'); } catch (error) {}
+    window.__rjdlxAnalyticsConsent = consent === 'granted';
+    window.gtag('consent', 'default', { analytics_storage: consent === 'granted' ? 'granted' : 'denied' });
+  })();
+  gtag('js', new Date());
+  gtag('config', 'G-J4MKWGPQJL', { send_page_view: false });
+</script>
 
 </head>
 <body data-view="home">
+
+<aside class="analytics-consent" id="analyticsConsent" aria-label="Analytics privacy choices" hidden>
+  <p>We use optional analytics cookies to understand site visits. You can accept or decline analytics.</p>
+  <div><button type="button" data-analytics-consent="denied">Decline</button><button type="button" data-analytics-consent="granted">Accept analytics</button></div>
+</aside>
 
 <!-- GRAIN -->
 <div class="grain" aria-hidden="true"></div>

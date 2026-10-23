@@ -1,6 +1,6 @@
 # RJDLx Website — Deploy Package
 
-Single-page site (46 views) split into properly arranged files. No build step, no framework — pure HTML + CSS + JS. Upload and it runs.
+The original HTML/CSS/JS design is compiled into 46 independent, indexable HTML pages. Edit the source files, then run `npm run build`. Publish the generated `dist/` directory, not the source folder.
 
 ## Contents
 
@@ -10,23 +10,36 @@ Single-page site (46 views) split into properly arranged files. No build step, n
 | `css/main.css` | All styles (6 source blocks, order kept) |
 | `js/imgmap.js` | Image key → file path map (must load before `main.js`) |
 | `js/main.js` | All behaviour: scroll engine, nav, galleries, router (order kept) |
-| `images/` | 115 mapped brand, collection and product images + `favicon.png` |
-| `.nojekyll` | Lets GitHub Pages serve the folder as-is |
+| `images/` | Original brand, collection and product photography |
+| `scripts/` | Build, public live checks and guarded IndexNow submission |
+| `tests/` | HTTP crawling and indexing regression checks |
+| `dist/` | Generated deployable pages/assets (ignored by Git) |
 
-## Deploy (any static host — no settings needed)
+## Build and verify
 
-This site uses `#/page` hash routing, so it works on **any** static hosting with **zero redirects/rewrites**:
+```sh
+npm ci
+npm run build
+npm run test:indexing
+npm run dev
+```
 
-- **cPanel / shared hosting:** upload the *contents* of this folder into `public_html/` (so `index.html` sits at the domain root). Done.
-- **Netlify:** drag-drop this folder into Netlify Drop, or connect the repo. No build command, publish directory = this folder.
-- **Vercel:** `vercel` from this folder (or import the repo). No build settings needed.
-- **GitHub Pages:** push this folder; Settings → Pages → Deploy from branch. (`.nojekyll` is already included.)
+`npm run dev` builds first, then runs Express on port 4583. It serves only public build assets and preserves the enquiry API. `npm run serve` serves `dist/` without the API. Originals in `images/` stay untouched; optimized responsive WebP files are generated at build time and cached under `.cache/`.
+
+`site.config.json` holds the canonical origin (currently `https://www.rjdlx.com`), optional public verification meta values and the public IndexNow key. Existing DNS verification records should be preserved. Never put private account credentials into that file.
+
+## Hosting
+
+Vercel builds the static pages and the existing `api/enquiry.js` function using `vercel.json`. Real pages use clean URLs; unknown URLs return 404. Do not restore the old catch-all homepage rewrites. Existing `.html` links and legacy hash links remain compatible. A production release still requires owner approval.
+
+For another static host, publish `dist/`, enable extensionless HTML URLs and 404 status responses, and configure permanent redirects for aliases from `dist/site-manifest.json`. The enquiry API needs separate Node hosting.
+
+After an approved production release, run `node scripts/check-live-indexing.js` and `npm run indexnow`. IndexNow refuses to submit until the key, sitemap and pages are actually live. It notifies participating engines including Bing and Yandex; it does not guarantee indexing. Submit `https://www.rjdlx.com/sitemap.xml` in authenticated Google Search Console, Bing Webmaster Tools and Yandex Webmaster, then inspect the homepage and collection URLs. See `docs/indexing-status.md` for the audit and account access status.
 
 ## Notes
 
-- **Internet needed for Google Fonts only** (Archivo + Inter via CDN link in `<head>`). Everything else is local.
+- Google Fonts and consent-controlled Google Analytics need internet access.
 - **Contact email:** the original file hid it behind Cloudflare email-protection (showed “[email protected]” without Cloudflare). It is now a plain `mailto:` link in the footers. Search `mailto:` in `index.html` to change it.
 - **Cloudflare junk removed:** the email-decoder script and the invisible challenge iframe from the original snapshot are dropped — they only worked behind Cloudflare.
-- **Editing images:** replace a file in `images/` keeping the same filename (e.g. hero first frame = `images/h52.jpg`), or edit `js/imgmap.js` to repoint a key. The 1-pixel placeholder in `<img src>` is intentional — `main.js` swaps in real paths on load.
-- **Deep links** look like `yourdomain.com/#/collections` — shareable, no server config required.
-- The standalone single-file version (`RJDLx-Natural-Recycled-Yarn.html`) contains this same current site and works without a build step.
+- Edit original images or `js/imgmap.js`, then rebuild. Source placeholders are replaced by actual image URLs in published HTML.
+- Share real URLs such as `https://www.rjdlx.com/collections`. Legacy hash bookmarks redirect to the corresponding real page.

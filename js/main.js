@@ -508,7 +508,7 @@
           const src = (key && M[key]) || btn.getAttribute("data-src");
           const label = btn.getAttribute("data-label") || "";
           const apply = ()=>{
-            if(src) img.src = src;
+            if(src){ img.removeAttribute('srcset'); img.removeAttribute('sizes'); img.src = src; }
             img.style.transform = btn.hasAttribute("data-zoom") ? "scale(2.1)" : "";
             img.style.transformOrigin = btn.getAttribute("data-origin") || "50% 50%";
             if(cap) cap.textContent = label;
@@ -580,6 +580,23 @@ var __loadViewImages;
   var F2V={"index": "home", "brass-bollard": "brass-bollard", "cane-cluster": "cane-cluster", "cane-dome": "cane-dome", "cane-lantern": "cane-lantern", "cane-linear": "cane-linear", "cane-totem": "cane-totem", "collection-architectural": "collection-architectural", "collection-cane-rattan": "collection-cane-rattan", "collection-metal-furniture": "collection-metal-furniture", "collection-metal-lighting": "collection-metal-lighting", "collection-objects": "collection-objects", "collection-pendants": "collection-pendants", "collection-sculptural": "collection-sculptural", "collection-seating": "collection-seating", "collection-tables": "collection-tables", "collection-metal-wardrobes": "collection-metal-wardrobes", "collection-natural-yarn": "collection-natural-yarn", "collection-recycled-yarn": "collection-recycled-yarn", "collection-woven-metal": "collection-natural-yarn", "collections": "collections", "contact": "contact", "craft": "craft", "custom": "custom", "floor-totem": "floor-totem", "fold-dining-chair": "fold-dining-chair", "gallery-console": "gallery-console", "journal": "journal", "linear-installation": "linear-installation", "nesting-tables": "nesting-tables", "plinth-stool": "plinth-stool", "side-tables": "side-tables", "spun-pendant": "spun-pendant", "studio": "studio", "trade": "trade", "wall-sconce": "wall-sconce", "weave-ottoman": "weave-ottoman", "weave-screen": "weave-screen", "woven-bench": "woven-bench", "woven-counter-stool": "woven-counter-stool", "woven-lounge-chair": "woven-lounge-chair", "collection-outdoor": "collection-outdoor", "collection-bar": "collection-bar", "collection-wall-decor": "collection-wall-decor", "collection-otb": "collection-otb", "collection-storage": "collection-metal-shelves", "collection-metal-shelves": "collection-metal-shelves", "collection-dividers": "collection-dividers", };
   var views={};
   document.querySelectorAll('.page-view').forEach(function(v){views[v.dataset.view]=v;});
+  function trackPageView(){
+    if(!window.__rjdlxAnalyticsConsent || typeof window.gtag !== 'function')return;
+    window.gtag('event','page_view',{page_title:document.title,page_location:window.location.href,page_path:window.location.pathname+window.location.search+window.location.hash});
+  }
+  // Built pages have real URLs and their own HTML. Keep normal browser navigation,
+  // including back/forward, new tabs, anchor links and no-JavaScript crawling.
+  if(document.body.dataset.staticPage === 'true'){
+    var legacy=(location.hash||'').match(/^#\/([a-z0-9-]+)(#.+)?$/);
+    if(legacy && (TITLES[legacy[1]] || F2V[legacy[1]])){
+      var target=F2V[legacy[1]]||legacy[1];
+      location.replace((target==='home'?'/':'/'+target)+location.search+(legacy[2]||''));
+      return;
+    }
+    trackPageView();
+    window.__showView=function(name,hash){location.assign((name==='home'?'/':'/'+name)+(hash||''));};
+    return;
+  }
   function show(name,hash){
     if(!views[name])name='home';
     Object.keys(views).forEach(function(k){views[k].hidden=(k!==name);});
@@ -587,6 +604,7 @@ var __loadViewImages;
     document.title=TITLES[name]||document.title;
     if(__loadViewImages && views[name]) __loadViewImages(views[name]);
     try{history.replaceState(null,'',hash?'#/'+name+hash:'#/'+name);}catch(e){}
+    trackPageView();
     document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape'}));
     if(hash){requestAnimationFrame(function(){requestAnimationFrame(function(){
       var t=views[name].querySelector(hash);
@@ -615,6 +633,28 @@ var __loadViewImages;
     if(p && (views[p] || (F2V[p] && views[F2V[p]]))){
       show(F2V[p]||p, (location.hash||null));
     }
+    else trackPageView();
   }
   window.__showView=show;
+})();
+
+/* ===== RJDLx analytics consent ===== */
+(function(){
+  var banner=document.getElementById('analyticsConsent');
+  if(!banner)return;
+  var saved=null;
+  try{saved=window.localStorage.getItem('rjdlx_analytics_consent');}catch(error){}
+  if(saved==='granted'||saved==='denied')return;
+  banner.hidden=false;
+  banner.addEventListener('click',function(event){
+    var button=event.target.closest('[data-analytics-consent]');
+    if(!button)return;
+    var choice=button.getAttribute('data-analytics-consent');
+    try{window.localStorage.setItem('rjdlx_analytics_consent',choice);}catch(error){}
+    banner.hidden=true;
+    if(choice!=='granted'||typeof window.gtag!=='function')return;
+    window.__rjdlxAnalyticsConsent=true;
+    window.gtag('consent','update',{analytics_storage:'granted'});
+    window.gtag('event','page_view',{page_title:document.title,page_location:window.location.href,page_path:window.location.pathname+window.location.search+window.location.hash});
+  });
 })();
