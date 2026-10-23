@@ -38,6 +38,11 @@ After an approved production release, run `node scripts/check-live-indexing.js` 
 
 ## Notes
 
+GA4 uses `G-J4MKWGPQJL` through the official Google tag. Its independent bootstrap
+is `js/analytics.js`, copied to every production build. Run `npm run test:analytics`.
+See `docs/ga4-implementation-2026-10-23.txt` for consent behavior, the required GA4
+Enhanced Measurement history setting, publishing and Realtime/DebugView checks.
+
 - Google Fonts and consent-controlled Google Analytics need internet access.
 - **Contact email:** the original file hid it behind Cloudflare email-protection (showed “[email protected]” without Cloudflare). It is now a plain `mailto:` link in the footers. Search `mailto:` in `index.html` to change it.
 - **Cloudflare junk removed:** the email-decoder script and the invisible challenge iframe from the original snapshot are dropped — they only worked behind Cloudflare.

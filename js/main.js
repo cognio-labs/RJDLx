@@ -581,8 +581,7 @@ var __loadViewImages;
   var views={};
   document.querySelectorAll('.page-view').forEach(function(v){views[v.dataset.view]=v;});
   function trackPageView(){
-    if(!window.__rjdlxAnalyticsConsent || typeof window.gtag !== 'function')return;
-    window.gtag('event','page_view',{page_title:document.title,page_location:window.location.href,page_path:window.location.pathname+window.location.search+window.location.hash});
+    if(typeof window.rjdlxTrackPageView === 'function')window.rjdlxTrackPageView();
   }
   // Built pages have real URLs and their own HTML. Keep normal browser navigation,
   // including back/forward, new tabs, anchor links and no-JavaScript crawling.
@@ -638,23 +637,3 @@ var __loadViewImages;
   window.__showView=show;
 })();
 
-/* ===== RJDLx analytics consent ===== */
-(function(){
-  var banner=document.getElementById('analyticsConsent');
-  if(!banner)return;
-  var saved=null;
-  try{saved=window.localStorage.getItem('rjdlx_analytics_consent');}catch(error){}
-  if(saved==='granted'||saved==='denied')return;
-  banner.hidden=false;
-  banner.addEventListener('click',function(event){
-    var button=event.target.closest('[data-analytics-consent]');
-    if(!button)return;
-    var choice=button.getAttribute('data-analytics-consent');
-    try{window.localStorage.setItem('rjdlx_analytics_consent',choice);}catch(error){}
-    banner.hidden=true;
-    if(choice!=='granted'||typeof window.gtag!=='function')return;
-    window.__rjdlxAnalyticsConsent=true;
-    window.gtag('consent','update',{analytics_storage:'granted'});
-    window.gtag('event','page_view',{page_title:document.title,page_location:window.location.href,page_path:window.location.pathname+window.location.search+window.location.hash});
-  });
-})();

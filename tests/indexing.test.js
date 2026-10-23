@@ -47,6 +47,9 @@ test('all 46 pages expose their own content, metadata, images and links without 
     titles.add($('title').text());
     descriptions.add($('meta[name="description"]').attr('content'));
     assert.equal($('script[src*="googletagmanager.com/gtag/js"]').length,1);
+    assert.equal($('head script[src="https://www.googletagmanager.com/gtag/js?id=G-J4MKWGPQJL"]').length,1);
+    assert.equal($('head script[src^="/js/analytics.js"]').length,1);
+    assert.ok(fs.existsSync(path.join(__dirname,'../dist/js/analytics.js')));
     assert.equal($('img[src^="data:"]').length,0,page.path+' contains placeholder images');
     $('img').each((_,el)=>{
       const img=$(el);

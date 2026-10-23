@@ -72,6 +72,7 @@ async function build() {
   await fs.cp(path.join(root,'css'),path.join(output,'css'),{recursive:true});
   await fs.mkdir(path.join(output,'js'),{recursive:true});
   await fs.copyFile(path.join(root,'js/main.js'),path.join(output,'js/main.js'));
+  await fs.copyFile(path.join(root,'js/analytics.js'),path.join(output,'js/analytics.js'));
   const optimizedMap = Object.fromEntries(Object.entries(imageMap).map(([key,value])=>[key,images.get(value)?.url||value]));
   await fs.writeFile(path.join(output,'js/imgmap.js'),'window.__IMG='+JSON.stringify(optimizedMap)+';\n');
   await sharp(path.join(root,'images/hero-architectural-bronze.png')).resize(1200,630,{fit:'cover'}).jpeg({quality:82}).toFile(path.join(output,'images/rjdlx-share.jpg'));

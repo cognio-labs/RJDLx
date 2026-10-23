@@ -6,6 +6,7 @@
   "scripts": {
     "build": "node scripts/build-site.js",
     "test:indexing": "node --test tests/indexing.test.js",
+    "test:analytics": "node --test tests/analytics.test.js",
     "indexnow": "node scripts/submit-indexnow.js",
     "predev": "npm run build",
     "prestart": "npm run build",

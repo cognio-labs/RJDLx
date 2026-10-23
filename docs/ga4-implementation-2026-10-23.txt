@@ -1,0 +1,141 @@
+RJDLx GA4 IMPLEMENTATION AND PUBLISHING GUIDE
+Measurement ID: G-J4MKWGPQJL. Audit date: 23 October 2026.
+
+ACTUAL PROJECT
+Plain HTML, CSS and JavaScript. scripts/build-site.js compiles the existing
+views into 46 independent HTML documents in dist/. Express serves the local
+build and enquiry API. Vercel uses @vercel/static-build for dist/ and a Node
+function for api/enquiry.js. No Next.js application or analytics library is used.
+
+FINDINGS
+The production Home, Contact and Trade responses already contain one official
+gtag.js loader with G-J4MKWGPQJL. Neither response headers nor meta tags impose
+a Content Security Policy on these sampled pages. See artifacts/ga4-live.json.
+The prior integration disables automatic page views and sends manual views only
+after analytics consent. Those calls and the consent listener were inside the
+large UI bundle. An earlier UI exception or blocked UI script could prevent
+them from running. No specific production UI exception was established here.
+Visitors who decline or have not accepted do not generate our manual page views.
+
+The private GA4 stream's 48-hour warning cannot be conclusively attributed to
+a source error from public HTTP alone. The tag is present. Consent, blockers,
+the selected property/stream, account filters, and actual GA receipt still need
+checking. Do not treat the warning as proof that the tag was missing.
+
+IMPLEMENTED
+- index.html: runs the independent analytics bootstrap in head before loading
+  the official async https://www.googletagmanager.com/gtag/js?id=G-J4MKWGPQJL.
+  Removed the previous inline initialization so there is one configuration.
+- js/analytics.js (new): queues consent before config, initializes once,
+  disables automatic config page views, handles the existing Accept/Decline
+  banner and queues deduplicated page_view events addressed to the supplied ID.
+  Works without the UI bundle. Ordinary section anchors are not separate pages.
+  Stored opt-in works on subsequent full-page navigations. Storage failures do
+  not break the banner; consent then lasts only within the current document.
+  Advertising storage, ad user data and ad personalization remain denied.
+  Existing analytics consent choices and banner appearance are preserved.
+  Optional ?ga_debug=1 enables debug mode on that document only.
+- js/main.js: the existing source router calls the shared tracking function;
+  removed its separate consent handler and manual event emitter.
+- scripts/build-site.js: copies analytics.js into the production dist/js folder.
+- tests/analytics.test.js (new): six behavior tests for consent, repeat execution,
+  duplicate events, storage failure, section anchors, routes and debug mode.
+- tests/indexing.test.js: all 46 pages must include exactly one correct Google
+  loader and one analytics bootstrap, with the asset present in dist/.
+- package.json: adds npm run test:analytics.
+- scripts/check-ga4.js (new): public read-only HTTP check of tag and CSP state.
+- scripts/package-seo.py: supports a GA4-labelled package and includes GA evidence.
+- README.md and this guide: publishing and validation instructions.
+- dist/: regenerated 46 page documents, js/main.js and new js/analytics.js;
+  related generated manifest size values update automatically. Styles and SEO
+  metadata are preserved. No production-only environment switch is required.
+
+VERIFIED AND NOT VERIFIED
+npm run build, npm run test:analytics and npm run test:indexing pass.
+The latter two contain six test groups each. Local HTTP checks confirm the
+bootstrap returns 200 on sampled pages; build tests cover its presence on all 46.
+Browser testing loaded Google's actual library, queued no manual view before
+Accept, then sent a debug page_view to Google's g/collect endpoint with the
+correct measurement ID and received HTTP 204. Repeated tracking calls produced
+one config and one manual view for that document. This tests the local build
+against Google's endpoint, not deployment or receipt in the GA4 dashboard.
+No GA property/stream settings were accessed or changed. Realtime/DebugView
+receipt and the reason for the account warning remain unverified.
+
+CONSENT AND DUPLICATES
+Preserve the existing optional-analytics choice. Do not force consent to granted
+to make a setup warning disappear. Config with denied consent can permit
+Google-controlled cookieless signals; the implementation's manual page_view is
+sent only after opt-in. This is not a claim that all Google network activity is
+blocked before consent.
+
+In GA4 Admin > Data collection and modification > Data streams > this web stream,
+open Enhanced measurement's settings, then Page views > advanced settings.
+Disable "Page changes based on browser history events" for this manual tracking
+setup. Keep other needed enhanced measurements. Google's history-based views
+are independent of send_page_view:false and could duplicate manual source-router
+views. This account setting cannot be enforced from these project files.
+Do not add a second Google tag or GTM GA4 page-view tag for this same stream.
+
+PUBLISH
+1. Review/extract RJDLx-GA4-corrected-project-2026-10-23.zip. The RJDLx folder
+   contains the complete source plus dist/, preserving existing project layout.
+   Secrets, .env files, node_modules and Vercel local account state are excluded.
+2. Run npm ci, npm run build, npm run test:analytics and npm run test:indexing.
+   On Windows use npm.cmd if PowerShell blocks npm.ps1.
+3. Publish using the existing project's reviewed Vercel workflow and vercel.json.
+   Resolve the previously reported fair-use restriction before attempting a
+   release; no deployment attempts were made in this task.
+4. Vercel must serve generated dist/ pages and retain api/enquiry.js. With another
+   static host publish dist/ contents and retain separate enquiry API hosting,
+   clean URLs and existing canonical redirects. The static ZIP alone has no API.
+5. After deployment run node scripts/check-ga4.js. Expect one correct Google
+   loader, analyticsBootstrap /js/analytics.js?v=20261023_ga4, and bootstrapStatus
+   200 for each sampled page. Confirm this via View Source on production too.
+   Existing production currently lacks this new bootstrap; publishing is needed.
+
+VERIFY AFTER DEPLOYMENT
+1. Confirm GA Admin's selected stream is for www.rjdlx.com and has Measurement
+   ID G-J4MKWGPQJL. The numeric Stream ID is not used by this code.
+2. Complete the Enhanced Measurement history setting above. Check Admin data
+   filters for internal/developer traffic exclusions; do not disable business
+   filters blindly. Use an appropriate external test device or testing filter.
+3. Open https://www.rjdlx.com/?ga_debug=1 in a clean browser with extensions and
+   tracking blockers disabled for this controlled test. Click Accept analytics.
+   If you previously declined, clear only rjdlx_analytics_consent in DevTools
+   Application > Local Storage, then reload to show the choice again.
+4. In DevTools Network verify the gtag/js request succeeds and a g/collect request
+   includes tid=G-J4MKWGPQJL and en=page_view (possibly in a batched POST body).
+   A successful response such as 204 shows endpoint acceptance, not dashboard
+   receipt. Check Console for script errors, ERR_BLOCKED_BY_CLIENT or CSP errors.
+5. Open GA Reports > Realtime and look for the test visit/page_view. Then open
+   Admin > Data display > DebugView, select the test device and inspect page_view
+   with the expected page_location/title. Try Tag Assistant if the device is not
+   identifiable. Do not expect DebugView activity while analytics consent is denied.
+6. Navigate to Contact/Trade. Expect a new page view for each new document and
+   none for simply scrolling to a section. To retain debug mode on each document,
+   add ?ga_debug=1 to each tested URL or use Tag Assistant. Check for duplicate
+   page_view events; distinguish them from session_start, scroll or engagement.
+7. Reload after consent: there should be one initial page view on that new load.
+   Confirm a declined visitor receives no custom page_view call from this code.
+8. Finish testing by removing ga_debug=1. Do not enable debug mode for all visitors.
+   Use Realtime/DebugView receipt as the validation, not only the stream's warning.
+
+IF EVENTS STILL DO NOT APPEAR
+- Missing bootstrap/404: wrong build output or stale release; publish generated
+  pages AND dist/js/analytics.js together. Do not upload source index.html alone.
+- Blocked request: check the tester's browser/privacy extensions, network DNS
+  filtering and actual Console error. Do not attempt to bypass visitors' choices.
+- Future CSP: follow Google's current allowlist for Analytics script, image and
+  connect destinations while retaining the site's other policy requirements.
+  No policy was loosened or added speculatively in this patch.
+- Requests succeed but dashboard empty: verify correct account/property/stream,
+  the request's tid, consent, internal/developer filters and device selection.
+  Authenticated GA account access/evidence is required to finish that diagnosis.
+
+OFFICIAL REFERENCES
+https://developers.google.com/tag-platform/gtagjs/configure
+https://developers.google.com/analytics/devguides/collection/ga4/views
+https://support.google.com/analytics/answer/7201382
+https://support.google.com/analytics/answer/9333790
+https://developers.google.com/tag-platform/security/guides/csp

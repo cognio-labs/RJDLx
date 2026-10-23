@@ -16,20 +16,8 @@
 <link rel="stylesheet" href="/css/main.css?v=20260917_shiny">
 
 <!-- Google Analytics 4: consent is required before page views are sent. -->
+<script src="/js/analytics.js?v=20261023_ga4"></script>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-J4MKWGPQJL"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){ dataLayer.push(arguments); }
-  window.gtag = window.gtag || gtag;
-  (function () {
-    var consent = null;
-    try { consent = window.localStorage.getItem('rjdlx_analytics_consent'); } catch (error) {}
-    window.__rjdlxAnalyticsConsent = consent === 'granted';
-    window.gtag('consent', 'default', { analytics_storage: consent === 'granted' ? 'granted' : 'denied' });
-  })();
-  gtag('js', new Date());
-  gtag('config', 'G-J4MKWGPQJL', { send_page_view: false });
-</script>
 
 </head>
 <body data-view="home">

@@ -3,13 +3,16 @@ from pathlib import Path
 from zipfile import ZipFile, ZIP_DEFLATED
 import hashlib
 import json
+import sys
 
 root = Path(__file__).resolve().parent.parent
 output = root / "artifacts"
 output.mkdir(exist_ok=True)
 folders = ["api", "components", "css", "js", "lib", "images", "scripts", "tests", "docs", "dist"]
 files = ["index.html", "package.json", "package-lock.json", "server.js", "site.config.json", "vercel.json", "serve.json", "README.md", "AGENTS.md", "CLAUDE.md", ".gitignore", ".vercelignore", ".nojekyll", "test-email.js", "BUILD-VERIFIED.txt"]
-evidence = ["seo-live.json", "seo-local.json", "live-indexing.json", "seo-mobile-home.png"]
+evidence = ["seo-live.json", "seo-local.json", "live-indexing.json", "seo-mobile-home.png", "ga4-live.json", "ga4-local.json", "ga4-browser.json"]
+label = sys.argv[1] if len(sys.argv) > 1 else "SEO"
+assert label in {"SEO", "GA4"}
 selected = [root / name for name in files if (root / name).is_file()]
 for folder in folders:
     selected.extend(p for p in (root / folder).rglob("*") if p.is_file())
@@ -22,8 +25,8 @@ for p in selected:
 
 archives = []
 for filename, contents, prefix in [
-    ("RJDLx-SEO-corrected-project-2026-10-23.zip", selected, "RJDLx/"),
-    ("RJDLx-SEO-static-dist-2026-10-23.zip", sorted(p for p in (root / "dist").rglob("*") if p.is_file()), ""),
+    (f"RJDLx-{label}-corrected-project-2026-10-23.zip", selected, "RJDLx/"),
+    (f"RJDLx-{label}-static-dist-2026-10-23.zip", sorted(p for p in (root / "dist").rglob("*") if p.is_file()), ""),
 ]:
     target = output / filename
     with ZipFile(target, "w", ZIP_DEFLATED, compresslevel=6) as archive:
