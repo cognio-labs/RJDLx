@@ -5,6 +5,7 @@
     { "src": "api/enquiry.js", "use": "@vercel/node" }
   ],
   "cleanUrls": true,
+  "trailingSlash": false,
   "redirects": [
     { "source": "/index", "destination": "/", "permanent": true },
     { "source": "/collection-storage", "destination": "/collection-metal-shelves", "permanent": true },

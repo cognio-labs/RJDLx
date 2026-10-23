@@ -11,16 +11,7 @@ const output = path.join(root, 'dist');
 const cache = path.join(root, '.cache', 'images');
 const clean = (text) => text.replace(/\s+/g, ' ').trim();
 const escape = (value) => value.replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const descriptions = {
-  home: 'RJDLx designs furniture, lighting and architectural décor in India. Explore metal, brass, cane and woven collections for homes, hospitality and global projects.',
-  collections: 'Explore RJDLx furniture and lighting collections: metal tables, chairs, wardrobes, brass, cane, shelves and architectural décor designed and made in India.',
-  contact: 'Contact RJDLx for furniture, lighting, custom projects and trade enquiries. Reach our India studio for specifications, sampling, export and collaborations.',
-  trade: 'Source RJDLx furniture and lighting from India. Explore export terms, sampling, production lead times, packing and freight support for international projects.',
-  studio: 'Discover the RJDLx studio: architect-driven furniture, lighting and architectural décor, connecting Indian making with residential, hospitality and retail projects.',
-  craft: 'Explore RJDLx materials and making in India: metal, brass, natural yarn, recycled yarn and cane, from prototyping and handwork to finishes and quality checks.',
-  custom: 'Develop custom furniture and lighting with RJDLx in India. Share drawings, materials, quantities and schedules for hospitality, retail and private-label projects.',
-  journal: 'Read the RJDLx journal for furniture and lighting design stories, material experiments, prototypes and project insights from an Indian design studio.'
-};
+const descriptions = require('./seo-descriptions.json');
 
 async function build() {
   await fs.mkdir(output, {recursive:true});
@@ -94,14 +85,15 @@ async function build() {
     const url = config.origin + (name==='home'?'/':'/'+name);
     const title = titles[name] || `${name.replace(/-/g,' ')} | RJDLx`;
     const heading = clean(view.find('h1').text());
-    const intro = clean(view.find('.lede, .c-desc, .p-desc').first().text());
     const label = clean(title.replace(/\s*[—|]\s*RJDLx.*$/,'').replace(/^.*?[—]\s*RJDLx Collections$/,''));
-    const description = descriptions[name] || (name.startsWith('collection-')
-      ? `Explore the RJDLx ${label} collection: furniture and lighting designed and made in India. View materials, finishes and specifications for your next project.`
-      : `Discover ${label} by RJDLx. ${intro || 'Explore materials, dimensions, finishes and lead times. Contact our India studio for trade and project enquiries.'}`).slice(0,165);
+    const description = descriptions[name];
+    if (!description || description.length < 25 || description.length > 160 || !/[.!?]$/.test(description)) throw new Error('Review SEO description for '+name);
+    if ($('h1').length !== 1) throw new Error('Expected one primary H1 on '+name);
+    if ($('img:not([alt])').length) throw new Error('Missing image alternative on '+name);
     $('title').text(title);
     $('meta[name="description"]').attr('content',description);
     $('link[as="image"]').remove();
+    $('link[rel="canonical"]').remove();
     $('head').append('<link rel="canonical" href="'+escape(url)+'">');
     for (const [key,value] of Object.entries({'robots':'index,follow,max-image-preview:large','twitter:card':'summary_large_image','twitter:title':title,'twitter:description':description,'twitter:image':config.origin+'/images/rjdlx-share.jpg'})) {
       $('head').append($('<meta>').attr({name:key,content:value}));
@@ -110,7 +102,10 @@ async function build() {
       $('head').append($('<meta>').attr({property:key,content:value}));
     }
     for (const [provider,meta] of Object.entries({google:'google-site-verification',bing:'msvalidate.01',yandex:'yandex-verification'})) {
-      if(config.verification[provider]) $('head').append($('<meta>').attr({name:meta,content:config.verification[provider]}));
+      if(config.verification[provider]) {
+        $('meta[name="'+meta+'"]').remove();
+        $('head').append($('<meta>').attr({name:meta,content:config.verification[provider]}));
+      }
     }
     $('a[href]').each((_,el)=>{
       const href=$(el).attr('href');

@@ -1,5 +1,7 @@
 # RJDLx indexing and account audit — 23 October 2026
 
+> Historical snapshot: a later live crawl on 23 October 2026 found the generated pages, XML sitemap and robots.txt already live. See `seo-audit-2026-10-23.txt` and `artifacts/seo-live.json` for current evidence. The earlier deployment/account observations below were not reverified in that later crawl.
+
 ## Release status
 
 **Implemented and verified locally; not live.** Preview deployment to the existing `cognio-so/rjdlx` project was rejected by Vercel: `Your Team exceeded our fair use limits and has been blocked.` Resolve that team restriction before release. No production deployment, DNS change, domain migration or search-engine submission was performed. Local `vercel build --yes` succeeded and packaged the static pages and existing enquiry function. Production release still requires owner approval.

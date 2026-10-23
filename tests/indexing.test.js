@@ -27,7 +27,18 @@ test('all 46 pages expose their own content, metadata, images and links without 
     assert.equal($('.page-view').length,1,page.path);
     assert.equal($('.page-view').attr('data-view'),page.name);
     assert.equal($('.page-view[hidden]').length,0);
+    assert.equal($('h1').length,1,page.path+' must have exactly one primary heading');
     assert.ok($('.page-view h1').text().trim(),page.path+' has no heading');
+    assert.equal($('meta[name="description"]').length,1);
+    const description=$('meta[name="description"]').attr('content');
+    assert.ok(description.length>=25 && description.length<=160,page.path+' description must contain 25–160 characters');
+    assert.match(description,/[.!?]$/,page.path+' description must be a complete sentence');
+    assert.equal($('link[rel="canonical"]').length,1);
+    assert.equal($('meta[name="msvalidate.01"]').length,1);
+    assert.equal($('meta[name="msvalidate.01"]').attr('content'),'DECD6D19B79D8132DE9B46F168DA08B3');
+    assert.equal($('meta[name="viewport"]').length,1);
+    assert.equal($('img:not([alt])').length,0,page.path+' missing image alternatives');
+    assert.ok($('.fb-mark').toArray().every(el=>$(el).attr('alt')==='RJDLx'));
     assert.equal($('title').text(),page.title);
     assert.equal($('link[rel="canonical"]').attr('href'),page.url);
     assert.equal($('meta[property="og:url"]').attr('content'),page.url);
@@ -68,6 +79,8 @@ test('sitemap has exactly the real canonical URLs and robots is plain text',asyn
   assert.equal(sitemapResponse.status,200);
   assert.match(sitemapResponse.headers.get('content-type'),/xml/);
   const xml=cheerio.load(await sitemapResponse.text(),{xml:true});
+  assert.equal(xml('urlset').attr('xmlns'),'http://www.sitemaps.org/schemas/sitemap/0.9');
+  assert.equal(new Set(xml('loc').toArray().map(el=>xml(el).text())).size,46);
   assert.deepEqual(xml('loc').toArray().map(el=>xml(el).text()),manifest.pages.map(page=>page.url));
 });
 

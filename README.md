@@ -1,6 +1,6 @@
 # RJDLx Website — Deploy Package
 
-The original HTML/CSS/JS design is compiled into 46 independent, indexable HTML pages. Edit the source files, then run `npm run build`. Publish the generated `dist/` directory, not the source folder.
+The original HTML/CSS/JS design is compiled into 46 independent, indexable HTML pages. Edit the source files, then run `npm run build`. Publish the generated `dist/` directory, not the source folder. Current SEO findings and publishing instructions are in `docs/seo-audit-2026-10-23.txt`.
 
 ## Contents
 
@@ -43,3 +43,5 @@ After an approved production release, run `node scripts/check-live-indexing.js` 
 - **Cloudflare junk removed:** the email-decoder script and the invisible challenge iframe from the original snapshot are dropped — they only worked behind Cloudflare.
 - Edit original images or `js/imgmap.js`, then rebuild. Source placeholders are replaced by actual image URLs in published HTML.
 - Share real URLs such as `https://www.rjdlx.com/collections`. Legacy hash bookmarks redirect to the corresponding real page.
+- Edit complete descriptions in `scripts/seo-descriptions.json`. The build rejects missing descriptions, missing image alternatives and multiple primary headings. Footer brand marks have `alt="RJDLx"`; the decorative hover preview intentionally has `alt=""`.
+- Run `node scripts/audit-seo.js` for a read-only production crawl, or pass a local origin. Reports go to `artifacts/seo-live.json` and `artifacts/seo-local.json`. This does not submit URLs for indexing.

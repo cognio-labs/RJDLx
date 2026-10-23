@@ -1,0 +1,230 @@
+RJDLx TECHNICAL SEO AUDIT AND RELEASE GUIDE
+Audit date: 23 October 2026. Canonical origin: https://www.rjdlx.com
+
+STATUS AND EVIDENCE
+Changes are saved in the supplied project and rebuilt in dist/. This audit did
+not deploy, change DNS, submit a sitemap, send enquiry email or request indexing.
+No deployment attempts were made. The reported Vercel fair-use restriction was
+not re-tested; resolve it with the team owner/Vercel before attempting release.
+
+Current public checks differ from the earlier docs/indexing-status.md snapshot:
+the 46 generated pages, robots.txt and XML sitemap are already live. This does
+not establish who deployed them or whether any page is currently indexed.
+The new description, alt and link corrections in this package are local changes.
+Read artifacts/seo-live.json for the timestamped pre-release production crawl;
+artifacts/seo-local.json describes this corrected local build.
+
+ROOT CAUSES AND WHAT WAS CHANGED
+
+1. Meta descriptions
+The original source homepage description was verbose and reused by the old
+single-document routing approach. The existing generator already produced
+unique descriptions, but its fallback applied slice(0,165) to assembled prose.
+The live audit found 24 descriptions without sentence-ending punctuation;
+examples visibly stop mid-word. Many collection descriptions also described
+both furniture and lighting irrespective of the collection's actual subject.
+Replaced the fallback with 46 reviewed descriptions in
+scripts/seo-descriptions.json. Each describes existing visible content and ends
+as a complete sentence. Current lengths are 144-160 characters. Updated the
+source homepage description too. Open Graph, Twitter and page schema receive
+the same description automatically. Build checks reject absent or incomplete
+descriptions outside Bing's stated 25-160 character range. Character length is
+an editorial guardrail, not a ranking rule;
+search engines can choose their own snippet text.
+
+2. Images and the reported 47 missing alt attributes
+The supplied source contains 609 image elements, zero missing alt attributes,
+and originally 47 empty alternatives: 46 repeated footer brand marks plus one
+decorative collection-hover preview. That matches the reported count but an
+export of Bing's flagged URLs/elements is required to prove its classification.
+Added alt="RJDLx" to the 46 meaningful footer marks in index.html. Kept alt=""
+on the decorative hover preview because the adjacent links already convey its
+purpose. Existing descriptive product/material alternatives were preserved.
+No image files were renamed or replaced by invented imagery. The generated
+pages expose real image sources without requiring JavaScript. Build/tests now
+check image alternatives. Responsive srcset and gallery image file references
+were also checked locally; no missing files were found.
+
+3. Multiple H1 tags
+The authoring index.html intentionally contains all 46 views, each with its own
+H1. Publishing that file under every route exposes all 46 H1s to crawlers.
+The existing build removes other views and publishes one document per page.
+The current live crawl and corrected build each have exactly one H1 per page.
+No heading text, CSS or heading hierarchy needed changing. The generator and
+regression tests now fail if a published page has more or fewer than one H1.
+Bing's older 46-page warning is not reproducible on current production; obtain
+the scan timestamp/export and run a fresh scan after release.
+
+4. Sitemap and Google Search Console "Couldn't fetch"
+Current public evidence: /sitemap.xml returns HTTPS 200, application/xml, no
+redirect on the canonical host, and exactly 46 distinct canonical URLs under
+http://www.sitemaps.org/schemas/sitemap/0.9. Every listed URL returned HTTP 200
+without a redirect and has a matching self-canonical. No listed page has a
+noindex meta or X-Robots-Tag response. Local XML parsing also succeeded.
+robots.txt returns 200 text/plain, allows public crawling and references the
+correct absolute sitemap URL; /api/ remains disallowed.
+
+The historical audit observed homepage HTML returned for both sitemap.xml and
+robots.txt. That earlier catch-all behavior can explain failed sitemap parsing,
+but it is no longer reproduced by this audit. Ordinary, Googlebot and bingbot
+user-agent requests now fetch the real sitemap and robots file successfully.
+These are simulated user agents, not requests from verified crawler IPs.
+Consequently no current DNS, TLS, XML, redirect or content-type failure was
+established for the canonical sitemap. Do not label the private GSC error fixed
+solely on these checks. Required evidence: exact submitted sitemap/property,
+last-read timestamp, detailed GSC error/live fetch result and host/CDN/firewall
+logs at that time. Investigate transient downtime, crawler-specific blocking,
+incorrect property/URL or a stale failure using that evidence. The count of
+Google verification TXT records alone does not prove authenticated ownership.
+The valid sitemap and robots output were retained rather than replaced.
+
+5. Canonicals, redirects and links
+All 46 live pages already have unique titles, one self-referencing canonical,
+one description, viewport metadata and indexable HTML content. Kept the known
+www HTTPS origin and the actual URL set. Build generation now removes an
+existing canonical before adding one, preventing future duplicates. Configured
+verification tags also replace a matching tag rather than duplicate it; the
+requested Bing verification tag remains present once on each generated page.
+
+Live /trade/ returned a duplicate 200 response. Added trailingSlash:false in
+vercel.json to normalize slash variants to the existing slashless canonicals.
+This hosting change requires post-release verification on Vercel. Existing
+.html and collection-alias redirects were retained. The live HTTP apex homepage
+uses two redirects (HTTP apex -> HTTPS apex -> HTTPS www). HTTPS apex and HTTP
+www reach the preferred homepage in one hop. The sitemap already uses the
+direct final URLs. A single-hop HTTP apex redirect is an optional hosting-level
+improvement; it was not changed in DNS or claimed as implemented here.
+
+Four Custom-page pathway links used #enquire despite base href="/", causing
+native navigation to resolve to the homepage fragment. Updated their source
+targets to custom.html#enquire, compiled as /custom#enquire. Existing preset
+behavior and design were preserved. The new audit resolves links against the
+actual document base, checks target IDs, and reports placeholder links.
+
+6. Structured data and performance
+Retained existing Organization, WebSite, page, BreadcrumbList and Product data.
+JSON-LD parses and the product names/contact details match authored content.
+No prices, offers, reviews or ratings were invented. Product rich-result
+eligibility is not claimed; Google's product enhancements may require offer,
+review or aggregate-rating information that the visible site does not supply.
+
+Retained existing responsive WebP generation, dimensions, native image lazy
+loading and early loading of important imagery. Homepage HTML is about 43 KB
+instead of the roughly 566 KB all-view source; largest generated page is below
+100 KB. Existing optimized hero files remain below 300 KB each. These are file
+measurements, not measured Core Web Vitals or a Lighthouse performance score.
+Styles, responsive rules, animations, branding and page content were preserved.
+
+VERIFICATION
+- npm run build: 46 documents generated from the existing views.
+- npm run test:indexing: six groups pass. Checks cover all 46 HTTP pages,
+  unique metadata, exactly one H1/canonical/Bing tag, image alternatives and
+  sources, sitemap/robots, redirects, real 404s, image budgets and invalid
+  enquiry-form submissions. No real email is sent by these checks.
+- Public crawl: 46 pages and 125 distinct referenced page resources checked.
+  One known live page-link failure remains on /custom until this fix is released.
+- Corrected local crawl: 46 pages, 125 resources, no crawl-check errors.
+- Additional responsive-image and gallery file targets exist locally.
+- Mobile homepage at 390 x 844 visually inspected; no horizontal overflow.
+  Product gallery switching checked in the browser. Browser evidence is under
+  artifacts/. A sample browser check is not an exhaustive accessibility audit.
+- Existing live robots/sitemap and unknown-page 404s work. DNS-over-HTTPS
+  confirms public address records and a www CNAME pointing to Vercel. Successful
+  HTTPS fetches validate TLS for this client; other networks/crawler IPs remain
+  outside the scope of this public test.
+
+MANUAL ACTIONS AND LIMITATIONS
+- Review and publish this package; resolve the Vercel team restriction first.
+  No new deployment success or current account-limit status is claimed.
+- Obtain GSC sitemap error details and timestamp if the failure persists.
+  Access authenticated GSC/Bing accounts through their normal sign-in flows.
+  Do not send passwords, account tokens or private environment values in chat.
+- Bing flags may persist until recrawl. Export the exact flagged URL/element
+  list if fresh scans still disagree with the HTTP checks.
+- /collection-bar currently has a Bar Furniture title/route but visible content
+  describing brass furniture, fittings and bathing forms. Its new description
+  follows that content. Owner review of naming is recommended; no URL/content
+  was invented, deleted or renamed to resolve this editorial mismatch.
+- No search-engine indexing, ranking, snippet display or rich-result outcome
+  is guaranteed or verified by this audit.
+
+PUBLISHING: EXISTING VERCEL PROJECT
+1. Back up the current release and review the supplied changes. The complete
+   ZIP preserves source folders and includes rebuilt dist/ output. Private .env
+   files, Git history, dependencies, caches and Vercel account state are excluded.
+2. In a clean extracted project run npm ci, npm run build and
+   npm run test:indexing. Use npm.cmd on Windows if PowerShell blocks npm.ps1.
+3. Confirm the existing Vercel project/domain and resolve the fair-use block
+   through the team owner/support. Do not repeatedly retry blocked deployments.
+4. Keep vercel.json: it builds static files from package.json into dist/ and
+   separately hosts api/enquiry.js. Do not upload authoring index.html as the
+   public homepage or add a catch-all rewrite to it. Keep existing mail settings
+   in the host's environment store; do not place secrets in public files.
+5. When allowed, use the project's normal reviewed release workflow. Preview
+   and test first; then publish that reviewed release. No deploy command was run
+   as part of this task, and no DNS change is required for the existing project.
+6. After release, run node scripts/audit-seo.js. Expect 46 pages, zero errors,
+   unique complete descriptions, one H1/canonical/Bing tag per page and 200 XML
+   from /sitemap.xml. Also verify /trade/ redirects once to /trade on Vercel.
+7. Check homepage, collection, product, gallery, mobile menu, Custom pathways,
+   and enquiry validation. Test real mail delivery separately with authorization.
+
+ALTERNATIVE HOSTING IF VERCEL REMAINS BLOCKED
+Use a Node-capable host with HTTPS and the existing custom domain, or a static
+host with a separately hosted enquiry endpoint. With Node: extract the full
+project, configure mail environment settings in the provider's secret store,
+run npm ci and npm run build, and start with npm start behind the host's HTTPS
+reverse proxy. Preserve the preferred www host and permanent redirects.
+With static hosting: publish the CONTENTS of dist/; configure extensionless
+HTML URLs, real 404s, slash normalization and alias redirects from
+dist/site-manifest.json. Serve robots.txt as text/plain and sitemap.xml as XML.
+Do not use a universal SPA fallback. A static-only upload will not provide
+/api/enquiry: configure and test that backend before switching the live site.
+Plan any domain cutover and rollback with the owner. No migration was performed.
+
+GOOGLE SEARCH CONSOLE: RESUBMIT AND VALIDATE
+1. Sign in and select the Domain property for rjdlx.com or the URL-prefix property
+   https://www.rjdlx.com/. Ensure you have the necessary owner/full-user access.
+2. Open Sitemaps. Inspect the current submission's exact URL, last-read date and
+   detailed error. Confirm it is https://www.rjdlx.com/sitemap.xml.
+3. Run a live URL Inspection fetch for the sitemap as advised in Google's help;
+   check that Page fetch is successful. If unavailable in that property/UI,
+   retain the sitemap report error and use host logs to investigate the fetch.
+4. Submit/resubmit sitemap.xml in that URL-prefix property, or the full absolute
+   URL in the Domain property. Check for successful processing and discovered
+   pages after Google fetches it. Removing an old report entry is optional and
+   does not remove indexed pages; keep the same valid sitemap URL.
+5. Inspect https://www.rjdlx.com/, /collections, /trade and selected real product
+   URLs. Test Live URL, review fetch/indexability/canonical results, then request
+   indexing for important changed pages where that action is available.
+6. Monitor Pages, Crawl stats and Sitemaps. Compare reported dates with release
+   time. A successful submission/discovery count does not prove indexing.
+
+BING WEBMASTER TOOLS: RESUBMIT AND VALIDATE
+1. Sign in and select the verified www.rjdlx.com site. The exact msvalidate.01
+   tag provided by the owner is retained in the homepage head.
+2. Open Sitemaps and submit/resubmit https://www.rjdlx.com/sitemap.xml.
+   Review processing, discovery and any URL-level errors.
+3. Use URL Inspection for Home, Collections, Custom and priority products.
+   Check the fetched version and use Request indexing/URL submission where
+   offered. Run a new Site Scan and compare its date with the release.
+4. Recheck descriptions, H1s and image alternatives. One empty decorative hover
+   alternative is intentional; adding keywords there would harm accessibility.
+5. Optional: run npm run indexnow only after the corrected pages are live and
+   the audit passes. This existing script checks its public key, sitemap and
+   pages before notifying participating engines. It was not run in this audit.
+   IndexNow acceptance is not proof of indexing and does not replace GSC.
+
+PRIMARY GUIDANCE CONSULTED
+Google sitemap reports/troubleshooting:
+https://support.google.com/webmasters/answer/7451001
+Google sitemap creation:
+https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap
+Google snippets/meta descriptions:
+https://developers.google.com/search/docs/appearance/snippet
+Google recrawl requests:
+https://developers.google.com/search/docs/crawling-indexing/ask-google-to-recrawl
+Bing URL Inspection:
+https://www.bing.com/webmasters/help/URL-Inspection-55a30305
+Vercel project configuration:
+https://vercel.com/docs/project-configuration
